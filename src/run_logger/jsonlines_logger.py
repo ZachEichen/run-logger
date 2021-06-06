@@ -5,7 +5,7 @@ from typing import List, Optional
 
 import jsonlines
 
-from run_logger import Logger, ParamChoice, SweepMethod
+from run_logger.logger import Logger, ParamChoice, SweepMethod
 
 
 @dataclass

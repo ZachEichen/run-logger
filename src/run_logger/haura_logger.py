@@ -10,7 +10,17 @@ import numpy as np
 from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
 
-from run_logger import Logger, ParamChoice, SweepMethod, param_generator
+from run_logger.logger import Logger, ParamChoice, SweepMethod
+
+
+def param_generator(*key_values: ParamChoice):
+    if not key_values:
+        yield {}
+        return
+    (key, value), *key_values = key_values
+    for choice in value:
+        for other_choices in param_generator(*key_values):
+            yield {key: choice, **other_choices}
 
 
 @dataclass
