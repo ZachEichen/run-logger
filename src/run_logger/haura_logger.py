@@ -10,7 +10,7 @@ import numpy as np
 from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
 
-from src.run_logger import Logger, ParamChoice, SweepMethod, param_generator
+from run_logger import Logger, ParamChoice, SweepMethod, param_generator
 
 
 @dataclass

@@ -3,8 +3,8 @@ from contextlib import contextmanager
 from enum import Enum, auto
 from typing import Iterable, List, Optional, Tuple
 
-from src.run_logger.haura_logger import HasuraLogger
-from src.run_logger.jsonlines_logger import JSONLinesLogger
+from run_logger.haura_logger import HasuraLogger
+from run_logger.jsonlines_logger import JSONLinesLogger
 
 __all__ = ["SweepMethod", "ParamChoice", "Logger", "HasuraLogger", "JSONLinesLogger"]
 
