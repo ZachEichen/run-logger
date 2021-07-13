@@ -5,7 +5,8 @@ from typing import List, Optional
 
 import jsonlines
 
-from run_logger.logger import Logger, ParamChoice, SweepMethod
+from logger import Logger
+from params import ParamChoice, SweepMethod
 
 
 @dataclass
@@ -29,7 +30,6 @@ class JSONLinesLogger(Logger):
         method: SweepMethod,
         metadata: dict,
         choices: List[ParamChoice],
-        charts: List[dict],
     ) -> int:
         pass
 
@@ -47,6 +47,9 @@ class JSONLinesLogger(Logger):
 
     def log(self, log: dict) -> None:
         self._writer.write(log)
+
+    def blob(self, blob: bytes) -> None:
+        raise NotImplementedError
 
     @property
     def run_id(self):

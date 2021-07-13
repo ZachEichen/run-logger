@@ -1,14 +1,7 @@
 import abc
-from enum import Enum, auto
-from typing import Iterable, List, Optional, Tuple
+from typing import List, Optional
 
-
-class SweepMethod(Enum):
-    grid = auto()
-    random = auto()
-
-
-ParamChoice = Tuple[str, Iterable]
+from params import ParamChoice, SweepMethod
 
 
 class Logger(abc.ABC):

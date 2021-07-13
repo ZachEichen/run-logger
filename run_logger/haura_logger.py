@@ -10,17 +10,9 @@ from typing import List, Optional
 import numpy as np
 from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
-from run_logger.logger import Logger, ParamChoice, SweepMethod
 
-
-def param_generator(*key_values: ParamChoice):
-    if not key_values:
-        yield {}
-        return
-    (key, value), *key_values = key_values
-    for choice in value:
-        for other_choices in param_generator(*key_values):
-            yield {key: choice, **other_choices}
+from logger import Logger
+from params import ParamChoice, SweepMethod, param_sampler
 
 
 @dataclass
@@ -107,7 +99,7 @@ class HasuraLogger(Logger):
     )
 
     def __post_init__(self):
-        self.random, _ = seeding.np_random(self.seed)
+        self.random = np.random.RandomState(seed=0)
         assert self.hasura_uri is not None
         transport = RequestsHTTPTransport(
             url=self.hasura_uri,

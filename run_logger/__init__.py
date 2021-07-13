@@ -1,14 +1,13 @@
 from contextlib import contextmanager
 
+from run_logger import ParamChoice
 from run_logger.haura_logger import HasuraLogger
 from run_logger.jsonlines_logger import JSONLinesLogger
-from run_logger.logger import Logger, ParamChoice, SweepMethod
-from run_logger.logger import ParamChoice
+from run_logger.logger import Logger
+from run_logger.params import ParamChoice, SweepMethod
 
 __all__ = [
     "Logger",
-    "SweepMethod",
-    "ParamChoice",
     "HasuraLogger",
     "JSONLinesLogger",
     "get_logger",
