@@ -1,6 +1,5 @@
 from contextlib import contextmanager
 
-from run_logger import ParamChoice
 from run_logger.haura_logger import HasuraLogger
 from run_logger.jsonlines_logger import JSONLinesLogger
 from run_logger.logger import Logger

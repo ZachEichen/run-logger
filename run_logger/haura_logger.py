@@ -11,8 +11,8 @@ import numpy as np
 from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
 
-from logger import Logger
-from params import ParamChoice, SweepMethod, param_sampler
+from run_logger.logger import Logger
+from run_logger.params import ParamChoice, SweepMethod, param_sampler
 
 
 @dataclass

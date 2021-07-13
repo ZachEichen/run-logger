@@ -1,7 +1,7 @@
 import abc
 from typing import List, Optional
 
-from params import ParamChoice, SweepMethod
+from run_logger.params import ParamChoice, SweepMethod
 
 
 class Logger(abc.ABC):
