@@ -5,7 +5,14 @@ from run_logger.jsonlines_logger import JSONLinesLogger
 from run_logger.logger import Logger, ParamChoice, SweepMethod
 from run_logger.logger import ParamChoice
 
-__all__ = ["Logger", "SweepMethod", "ParamChoice", "HasuraLogger", "JSONLinesLogger"]
+__all__ = [
+    "Logger",
+    "SweepMethod",
+    "ParamChoice",
+    "HasuraLogger",
+    "JSONLinesLogger",
+    "get_logger",
+]
 
 
 _names = dict(
