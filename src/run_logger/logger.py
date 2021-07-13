@@ -18,7 +18,6 @@ class Logger(abc.ABC):
         method: SweepMethod,
         metadata: dict,
         choices: List[ParamChoice],
-        charts: List[dict],
     ) -> int:
         pass
 
@@ -37,6 +36,10 @@ class Logger(abc.ABC):
 
     @abc.abstractmethod
     def log(self, log: dict) -> None:
+        pass
+
+    @abc.abstractmethod
+    def blob(self, blob: bytes) -> None:
         pass
 
     @property

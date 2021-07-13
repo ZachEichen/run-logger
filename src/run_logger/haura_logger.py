@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 import time
@@ -9,7 +10,6 @@ from typing import List, Optional
 import numpy as np
 from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
-
 from run_logger.logger import Logger, ParamChoice, SweepMethod
 
 
@@ -26,20 +26,20 @@ def param_generator(*key_values: ParamChoice):
 @dataclass
 class HasuraLogger(Logger):
     seed: int = 0
-    x_hasura_admin_secret: Optional[str] = os.getenv("HASURA_GRAPHQL_ADMIN_SECRET")
+    x_hasura_admin_secret: str = os.getenv("HASURA_GRAPHQL_ADMIN_SECRET")
     hasura_uri: str = os.getenv("HASURA_URI")
     _run_id: Optional[int] = None
     debounce_time: int = 0
 
     insert_new_sweep_mutation = gql(
         """
-    mutation insert_new_sweep($grid_index: Int, $metadata: jsonb, $parameter_choices: [parameter_choice_insert_input!]!, $charts: [chart_insert_input!] = []) {
-      insert_sweep_one(object: {grid_index: $grid_index, metadata: $metadata, parameter_choices: {data: $parameter_choices}, charts: {data: $charts}}) {
+    mutation insert_new_sweep($grid_index: Int, $metadata: jsonb, $parameter_choices: [parameter_choices_insert_input!]!) {
+      insert_sweep_one(object: {grid_index: $grid_index, metadata: $metadata, parameter_choices: {data: $parameter_choices}}) {
         grid_index
         id
         metadata
         parameter_choices {
-          key
+          Key
           choice
         }
       }
@@ -57,12 +57,12 @@ class HasuraLogger(Logger):
     )
     add_run_to_sweep_mutation = gql(
         """
-    mutation add_run_to_sweep($metadata: jsonb = {}, $sweep_id: Int!) {
-        insert_run_one(object: {metadata: $metadata, sweep_id: $sweep_id}) {
+    mutation add_run_to_sweep($metadata: jsonb = {}, $sweep_id: Int!, $charts: [chart_insert_input!] = []) {
+        insert_run_one(object: {charts: {data: $charts}, metadata: $metadata, sweep_id: $sweep_id}) {
             id
             sweep {
                 parameter_choices {
-                    key
+                    Key
                     choice
                 }
             }
@@ -96,16 +96,28 @@ class HasuraLogger(Logger):
     }
     """
     )
+    insert_run_blobs_mutation = gql(
+        """
+    mutation insert_run_blobs($objects: [run_blob_insert_input!]!) {
+      insert_run_blob(objects: $objects) {
+        affected_rows
+      }
+    }
+    """
+    )
 
     def __post_init__(self):
-        self.random = np.random.RandomState()
+        self.random, _ = seeding.np_random(self.seed)
+        assert self.hasura_uri is not None
         transport = RequestsHTTPTransport(
             url=self.hasura_uri,
             headers={"x-hasura-admin-secret": self.x_hasura_admin_secret},
         )
         self.client = Client(transport=transport)
         self._log_buffer = []
+        self._blob_buffer = []
         self._last_log_time = None
+        self._last_blob_time = None
 
     def __enter__(self):
         return self
@@ -122,7 +134,6 @@ class HasuraLogger(Logger):
         method: SweepMethod,
         metadata: dict,
         choices: List[ParamChoice],
-        charts: List[dict],
     ) -> int:
         if method == SweepMethod.grid:
             grid_index = 0
@@ -132,7 +143,12 @@ class HasuraLogger(Logger):
             raise RuntimeError("Invalid value for `method`:", method)
 
         def preprocess_params(params):
-            return f"{{{','.join([json.dumps(json.dumps(v)) for v in params])}}}"
+            params = (
+                ",".join([json.dumps(json.dumps(v)) for v in params])
+                if isinstance(params, list)
+                else json.dumps(json.dumps(params))
+            )
+            return "{" + params + "}"
 
         response = self.execute(
             self.insert_new_sweep_mutation,
@@ -140,9 +156,8 @@ class HasuraLogger(Logger):
             variable_values=dict(
                 grid_index=grid_index,
                 metadata=metadata,
-                charts=[dict(spec=spec) for spec in charts],
                 parameter_choices=[
-                    dict(key=k, choice=preprocess_params(vs)) for k, vs in choices
+                    dict(Key=k, choice=preprocess_params(vs)) for k, vs in choices
                 ],
             ),
         )
@@ -168,7 +183,7 @@ class HasuraLogger(Logger):
         self._run_id = insert_run_response["id"]
         if sweep_id is not None:
             param_choices = {
-                d["key"]: d["choice"]
+                d["Key"]: d["choice"]
                 for d in insert_run_response["sweep"]["parameter_choices"]
             }
             grid_index = data["update_sweep"]["returning"][0]["grid_index"]
@@ -177,12 +192,10 @@ class HasuraLogger(Logger):
                 assert v, f"{k} is empty"
             if grid_index is None:
                 # random search
-                choice = {
-                    k: vs[np.random.choice(len(vs))] for k, vs in param_choices.items()
-                }
+                choice = param_sampler(param_choices)
             else:
                 # grid search
-                iterator = cycle(param_generator(*param_choices.items()))
+                iterator = cycle(param_generator(param_choices))
                 choice = next(islice(iterator, grid_index, None))
 
             return choice
@@ -198,7 +211,7 @@ class HasuraLogger(Logger):
         )
 
     def log(self, log: dict):
-        assert self.run_id is not None, "add_log called before create_run"
+        assert self.run_id is not None, "log called before create_run"
 
         self._log_buffer.append(dict(log=log, run_id=self.run_id))
         if (
@@ -212,10 +225,27 @@ class HasuraLogger(Logger):
             self._last_log_time = time.time()
             self._log_buffer = []
 
+    def blob(self, blob: dict):
+        assert self.run_id is not None, "blob called before create_run"
+
+        self._blob_buffer.append(dict(blob=blob, run_id=self.run_id))
+        if (
+            self._last_blob_time is None
+            or time.time() - self._last_blob_time > self.debounce_time
+        ):
+            self.execute(
+                self.insert_run_blobs_mutation,
+                variable_values=dict(objects=self._blob_buffer),
+            )
+            self._last_blob_time = time.time()
+            self._blob_buffer = []
+
     @classmethod
     def jsonify(cls, value):
         if isinstance(value, str):
             return value
+        elif isinstance(value, bytes):
+            return base64.b64encode(value).decode("ascii")
         elif isinstance(value, Path):
             return str(value)
         elif np.isscalar(value):
