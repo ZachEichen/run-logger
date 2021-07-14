@@ -5,7 +5,7 @@ description = ""
 authors = ["Ethan Brooks <ethanabrooks@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 numpy = "^1.21.0"
 gql = "^2.0.0"
 jsonlines = "^2.0.0"
