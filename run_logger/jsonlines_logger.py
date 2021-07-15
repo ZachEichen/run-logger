@@ -6,7 +6,6 @@ from typing import List, Optional
 import jsonlines
 
 from run_logger.logger import Logger
-from run_logger.params import ParamChoice, SweepMethod
 
 
 @dataclass
@@ -24,14 +23,6 @@ class JSONLinesLogger(Logger):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._writer.close()
-
-    def create_sweep(
-        self,
-        method: SweepMethod,
-        metadata: dict,
-        choices: List[ParamChoice],
-    ) -> int:
-        pass
 
     def update_metadata(self, metadata: dict):
         pass

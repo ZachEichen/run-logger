@@ -1,19 +1,8 @@
 import abc
 from typing import List, Optional
 
-from run_logger.params import ParamChoice, SweepMethod
-
 
 class Logger(abc.ABC):
-    @abc.abstractmethod
-    def create_sweep(
-        self,
-        method: SweepMethod,
-        metadata: dict,
-        choices: List[ParamChoice],
-    ) -> int:
-        pass
-
     @abc.abstractmethod
     def create_run(
         self,

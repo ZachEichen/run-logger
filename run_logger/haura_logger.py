@@ -1,5 +1,4 @@
 import base64
-import json
 import os
 import time
 from dataclasses import dataclass
@@ -12,7 +11,7 @@ from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
 
 from run_logger.logger import Logger
-from run_logger.params import ParamChoice, SweepMethod, param_sampler
+from run_logger.params import param_generator, param_sampler
 
 
 @dataclass
@@ -23,47 +22,12 @@ class HasuraLogger(Logger):
     _run_id: Optional[int] = None
     debounce_time: int = 0
 
-    insert_new_sweep_mutation = gql(
-        """
-    mutation insert_new_sweep($grid_index: Int, $metadata: jsonb, $parameter_choices: [parameter_choices_insert_input!]!) {
-      insert_sweep_one(object: {grid_index: $grid_index, metadata: $metadata, parameter_choices: {data: $parameter_choices}}) {
-        grid_index
-        id
-        metadata
-        parameter_choices {
-          Key
-          choice
-        }
-      }
-    }
-    """
-    )
     insert_new_run_mutation = gql(
         """
     mutation insert_new_run($metadata: jsonb = {}, $charts: [chart_insert_input!] = []) {
       insert_run_one(object: {charts: {data: $charts}, metadata: $metadata}) {
         id
       }
-    }
-    """
-    )
-    add_run_to_sweep_mutation = gql(
-        """
-    mutation add_run_to_sweep($metadata: jsonb = {}, $sweep_id: Int!, $charts: [chart_insert_input!] = []) {
-        insert_run_one(object: {charts: {data: $charts}, metadata: $metadata, sweep_id: $sweep_id}) {
-            id
-            sweep {
-                parameter_choices {
-                    Key
-                    choice
-                }
-            }
-        }
-        update_sweep(where: {id: {_eq: $sweep_id}}, _inc: {grid_index: 1}) {
-            returning {
-                grid_index
-            }
-        }
     }
     """
     )
@@ -120,41 +84,6 @@ class HasuraLogger(Logger):
     @property
     def run_id(self):
         return self._run_id
-
-    def create_sweep(
-        self,
-        method: SweepMethod,
-        metadata: dict,
-        choices: List[ParamChoice],
-    ) -> int:
-        if method == SweepMethod.grid:
-            grid_index = 0
-        elif method == SweepMethod.random:
-            grid_index = None
-        else:
-            raise RuntimeError("Invalid value for `method`:", method)
-
-        def preprocess_params(params):
-            params = (
-                ",".join([json.dumps(json.dumps(v)) for v in params])
-                if isinstance(params, list)
-                else json.dumps(json.dumps(params))
-            )
-            return "{" + params + "}"
-
-        response = self.execute(
-            self.insert_new_sweep_mutation,
-            # variables=variables
-            variable_values=dict(
-                grid_index=grid_index,
-                metadata=metadata,
-                parameter_choices=[
-                    dict(Key=k, choice=preprocess_params(vs)) for k, vs in choices
-                ],
-            ),
-        )
-        sweep_id = response["insert_sweep_one"]["id"]
-        return sweep_id
 
     def create_run(
         self,
