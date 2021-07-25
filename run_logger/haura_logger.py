@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import List, Optional
 
 import numpy as np
-from gql import Client, gql
+from gql import Client as GQLClient, gql
 from gql.transport.requests import RequestsHTTPTransport
 
 from run_logger.logger import Logger
@@ -39,7 +39,7 @@ class Client:
 
     def __post_init__(self):
         transport = RequestsHTTPTransport(url=self.graphql_endpoint)
-        self.client = Client(transport=transport)
+        self.client = GQLClient(transport=transport)
 
     def execute(self, query: str, variable_values: dict):
         sleep_time = 1
