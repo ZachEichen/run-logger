@@ -13,6 +13,14 @@ from run_logger.logger import Logger
 from run_logger.params import param_generator, param_sampler
 
 
+def gql_client(hasura_admin_secret, hasura_uri):
+    transport = RequestsHTTPTransport(
+        url=hasura_uri,
+        headers={"x-hasura-admin-secret": hasura_admin_secret},
+    )
+    return Client(transport=transport)
+
+
 @dataclass
 class HasuraLogger(Logger):
     hasura_uri: str
@@ -84,11 +92,11 @@ class HasuraLogger(Logger):
     def __post_init__(self):
         self.random = np.random.RandomState(seed=0)
         assert self.hasura_uri is not None
-        transport = RequestsHTTPTransport(
-            url=self.hasura_uri,
-            headers={"x-hasura-admin-secret": self.x_hasura_admin_secret},
+        client = gql_client(
+            hasura_admin_secret=self.x_hasura_admin_secret,
+            hasura_uri=self.hasura_uri,
         )
-        self.client = Client(transport=transport)
+        self.client = client
         self._log_buffer = []
         self._blob_buffer = []
         self._last_log_time = None
