@@ -1,5 +1,4 @@
 import base64
-import os
 import time
 from dataclasses import dataclass
 from itertools import cycle, islice
@@ -16,9 +15,9 @@ from run_logger.params import param_generator, param_sampler
 
 @dataclass
 class HasuraLogger(Logger):
+    hasura_uri: str
     seed: int = 0
-    x_hasura_admin_secret: str = os.getenv("HASURA_GRAPHQL_ADMIN_SECRET")
-    hasura_uri: str = os.getenv("HASURA_URI")
+    x_hasura_admin_secret: str = None
     _run_id: Optional[int] = None
     debounce_time: int = 0
 
