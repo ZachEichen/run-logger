@@ -13,12 +13,51 @@ from run_logger.logger import Logger
 from run_logger.params import param_generator, param_sampler
 
 
-def gql_client(hasura_admin_secret, hasura_uri):
-    transport = RequestsHTTPTransport(
-        url=hasura_uri,
-        headers={"x-hasura-admin-secret": hasura_admin_secret},
-    )
-    return Client(transport=transport)
+def jsonify(value):
+    if isinstance(value, str):
+        return value
+    elif isinstance(value, bytes):
+        return base64.b64encode(value).decode("ascii")
+    elif isinstance(value, Path):
+        return str(value)
+    elif np.isscalar(value):
+        return None if np.isnan(value) else value
+    elif isinstance(value, np.ndarray):
+        return jsonify(value.tolist())
+    elif isinstance(value, dict):
+        return {jsonify(k): jsonify(v) for k, v in value.items()}
+    else:
+        try:
+            return [jsonify(v) for v in value]
+        except TypeError:
+            return value
+
+
+@dataclass
+class Client:
+    hasura_uri: str
+    hasura_secret: str = None
+
+    def __post_init__(self):
+        transport = RequestsHTTPTransport(
+            url=self.hasura_uri,
+            headers={"x-hasura-admin-secret": self.hasura_secret},
+        )
+        self.client = Client(transport=transport)
+
+    def execute(self, query: str, variable_values: dict):
+        sleep_time = 1
+        while True:
+            try:
+                return self.client.execute(
+                    query,
+                    variable_values=jsonify(variable_values),
+                )
+            except Exception as e:
+                print(e)
+                breakpoint()
+                time.sleep(sleep_time)
+                sleep_time *= 2
 
 
 @dataclass
@@ -92,11 +131,10 @@ class HasuraLogger(Logger):
     def __post_init__(self):
         self.random = np.random.RandomState(seed=0)
         assert self.hasura_uri is not None
-        client = gql_client(
-            hasura_admin_secret=self.x_hasura_admin_secret,
+        self.client = Client(
+            hasura_secret=self.x_hasura_admin_secret,
             hasura_uri=self.hasura_uri,
         )
-        self.client = client
         self._log_buffer = []
         self._blob_buffer = []
         self._last_log_time = None
@@ -188,36 +226,5 @@ class HasuraLogger(Logger):
             self._last_blob_time = time.time()
             self._blob_buffer = []
 
-    @classmethod
-    def jsonify(cls, value):
-        if isinstance(value, str):
-            return value
-        elif isinstance(value, bytes):
-            return base64.b64encode(value).decode("ascii")
-        elif isinstance(value, Path):
-            return str(value)
-        elif np.isscalar(value):
-            return None if np.isnan(value) else value
-        elif isinstance(value, np.ndarray):
-            return cls.jsonify(value.tolist())
-        elif isinstance(value, dict):
-            return {cls.jsonify(k): cls.jsonify(v) for k, v in value.items()}
-        else:
-            try:
-                return [cls.jsonify(v) for v in value]
-            except TypeError:
-                return value
-
-    def execute(self, query, variable_values):
-        sleep_time = 1
-        while True:
-            try:
-                return self.client.execute(
-                    query,
-                    variable_values=self.jsonify(variable_values),
-                )
-            except Exception as e:
-                print(e)
-                breakpoint()
-                time.sleep(sleep_time)
-                sleep_time *= 2
+    def execute(self, *args, **kwargs):
+        return self.client.execute(*args, **kwargs)
