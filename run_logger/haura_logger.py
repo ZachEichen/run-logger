@@ -30,6 +30,26 @@ class HasuraLogger(Logger):
     }
     """
     )
+    add_run_to_sweep_mutation = gql(
+        """
+    mutation add_run_to_sweep($metadata: jsonb = {}, $sweep_id: Int!, $charts: [chart_insert_input!] = []) {
+        insert_run_one(object: {charts: {data: $charts}, metadata: $metadata, sweep_id: $sweep_id}) {
+            id
+            sweep {
+                parameter_choices {
+                    Key
+                    choice
+                }
+            }
+        }
+        update_sweep(where: {id: {_eq: $sweep_id}}, _inc: {grid_index: 1}) {
+            returning {
+                grid_index
+            }
+        }
+    }
+    """
+    )
     update_metadata_mutation = gql(
         """
     mutation update_metadata($metadata: jsonb!, $run_id: Int!) {
