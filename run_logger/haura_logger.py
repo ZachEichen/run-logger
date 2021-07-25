@@ -35,14 +35,10 @@ def jsonify(value):
 
 @dataclass
 class Client:
-    hasura_uri: str
-    hasura_secret: str = None
+    graphql_endpoint: str
 
     def __post_init__(self):
-        transport = RequestsHTTPTransport(
-            url=self.hasura_uri,
-            headers={"x-hasura-admin-secret": self.hasura_secret},
-        )
+        transport = RequestsHTTPTransport(url=self.graphql_endpoint)
         self.client = Client(transport=transport)
 
     def execute(self, query: str, variable_values: dict):
@@ -62,9 +58,8 @@ class Client:
 
 @dataclass
 class HasuraLogger(Logger):
-    hasura_uri: str
+    graphql_endpoint: str
     seed: int = 0
-    hasura_secret: str = None
     _run_id: Optional[int] = None
     debounce_time: int = 0
 
@@ -130,11 +125,8 @@ class HasuraLogger(Logger):
 
     def __post_init__(self):
         self.random = np.random.RandomState(seed=0)
-        assert self.hasura_uri is not None
-        self.client = Client(
-            hasura_secret=self.hasura_secret,
-            hasura_uri=self.hasura_uri,
-        )
+        assert self.graphql_endpoint is not None
+        self.client = Client(graphql_endpoint=self.graphql_endpoint)
         self._log_buffer = []
         self._blob_buffer = []
         self._last_log_time = None
