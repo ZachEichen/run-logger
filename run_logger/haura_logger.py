@@ -64,7 +64,7 @@ class Client:
 class HasuraLogger(Logger):
     hasura_uri: str
     seed: int = 0
-    x_hasura_admin_secret: str = None
+    hasura_secret: str = None
     _run_id: Optional[int] = None
     debounce_time: int = 0
 
@@ -132,7 +132,7 @@ class HasuraLogger(Logger):
         self.random = np.random.RandomState(seed=0)
         assert self.hasura_uri is not None
         self.client = Client(
-            hasura_secret=self.x_hasura_admin_secret,
+            hasura_secret=self.hasura_secret,
             hasura_uri=self.hasura_uri,
         )
         self._log_buffer = []
