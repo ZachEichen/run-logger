@@ -13,6 +13,7 @@ from run_logger.logger import Logger
 from run_logger.params import param_generator, param_sampler
 
 
+
 def jsonify(value):
     if isinstance(value, str):
         return value
@@ -21,7 +22,12 @@ def jsonify(value):
     elif isinstance(value, Path):
         return str(value)
     elif np.isscalar(value):
-        return None if np.isnan(value) else value
+        if np.isnan(value):
+            return None
+        try:
+            return value.item()
+        except AttributeError:
+            return value
     elif isinstance(value, np.ndarray):
         return jsonify(value.tolist())
     elif isinstance(value, dict):
@@ -31,6 +37,8 @@ def jsonify(value):
             return [jsonify(v) for v in value]
         except TypeError:
             return value
+
+
 
 
 @dataclass
