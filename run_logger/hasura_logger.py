@@ -1,4 +1,3 @@
-import base64
 import time
 from dataclasses import dataclass
 from itertools import cycle, islice
@@ -13,12 +12,9 @@ from run_logger.logger import Logger
 from run_logger.params import param_generator, param_sampler
 
 
-
 def jsonify(value):
     if isinstance(value, str):
         return value
-    elif isinstance(value, bytes):
-        return base64.b64encode(value).decode("ascii")
     elif isinstance(value, Path):
         return str(value)
     elif np.isscalar(value):
@@ -37,8 +33,6 @@ def jsonify(value):
             return [jsonify(v) for v in value]
         except TypeError:
             return value
-
-
 
 
 @dataclass
