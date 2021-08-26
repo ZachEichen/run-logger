@@ -205,7 +205,7 @@ class HasuraLogger(Logger):
             self._last_log_time = time.time()
             self._log_buffer = []
 
-    def blob(self, blob: dict):
+    def blob(self, blob: str):
         assert self.run_id is not None, "blob called before create_run"
 
         self._blob_buffer.append(dict(blob=blob, run_id=self.run_id))
