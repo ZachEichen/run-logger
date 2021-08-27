@@ -21,7 +21,7 @@ class Logger(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def blob(self, blob: bytes) -> None:
+    def blob(self, blob: str, metadata: dict) -> None:
         pass
 
     @property

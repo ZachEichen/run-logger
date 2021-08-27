@@ -39,7 +39,7 @@ class JSONLinesLogger(Logger):
     def log(self, log: dict) -> None:
         self._writer.write(log)
 
-    def blob(self, blob: bytes) -> None:
+    def blob(self, blob: str, metadata: dict) -> None:
         raise NotImplementedError
 
     @property
