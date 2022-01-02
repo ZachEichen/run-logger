@@ -152,7 +152,11 @@ class HasuraLogger(Logger):
     ) -> Optional[dict]:
         variable_values = dict(metadata=metadata)
         if charts is not None:
-            variable_values.update(charts=[dict(spec=spec) for spec in charts])
+            variable_values.update(
+                charts=[
+                    dict(spec=spec, order=order) for order, spec in enumerate(charts)
+                ]
+            )
         if sweep_id is None:
             mutation = self.insert_new_run_mutation
         else:
