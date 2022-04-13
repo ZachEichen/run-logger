@@ -37,7 +37,7 @@ metadata(path: "parameters")
     )["run_by_pk"]["metadata"]
 
 
-def get_new_params(
+def create_run(
     logger: HasuraLogger = None,
     config: Union[Path, str] = None,
     charts: List[dict] = None,
@@ -97,7 +97,7 @@ def initialize(
     **params,
 ) -> Tuple[dict, HasuraLogger]:
     logger = HasuraLogger(graphql_endpoint) if use_logger else None
-    new_params = get_new_params(
+    new_params = create_run(
         logger=logger,
         config=config,
         charts=charts,
