@@ -30,12 +30,12 @@ def param_generator(params: Any):
         yield params
 
 
-def param_sampler(params: Any):
+def param_sampler(params: Any, rng: np.random.Generator):
     if isinstance(params, Mapping):
         if tuple(params.keys()) == ("",):
-            return param_sampler(params[""])
-        return {k: param_sampler(v) for k, v in params.items()}
+            return param_sampler(params[""], rng)
+        return {k: param_sampler(v, rng) for k, v in params.items()}
     elif isinstance(params, (list, tuple)):
-        return param_sampler(params[np.random.choice(len(params))])
+        return param_sampler(params[rng.choice(len(params))], rng)
     else:
         return params

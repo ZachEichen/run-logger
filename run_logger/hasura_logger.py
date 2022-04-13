@@ -13,6 +13,17 @@ from run_logger.params import param_generator, param_sampler
 
 
 def jsonify(value):
+    """
+    Convert a value to a JSON-compatible type.
+    In addition to standard JSON types, handles
+
+    - `pathlib.Path`
+    - `np.nan`
+    - `np.ndarray` (converts to list)
+
+    :param value:
+    :return: value converted to JSON-serializable object
+    """
     if isinstance(value, str):
         return value
     elif isinstance(value, Path):
@@ -60,6 +71,21 @@ class Client:
 
 @dataclass
 class HasuraLogger(Logger):
+    """
+    HasuraLogger is the main logger class for this library.
+
+    :param graphql_entrypoint
+        The endpoint of the Hasura GraphQL API, e.g. `https://server.university.edu:1200/v1/graphql`.
+    :param seed
+        The seed for the random number generator. Used for selecting random parameters
+        in conjunction with sweeps. See [https://github.com/run-tracker/sweep-logger] for details about
+        creating sweeps.
+    :param debounce_time:
+        If your application expects to perform many log operations in rapid succession, debouncing
+        collects the log data over the course of this time interval to perform a single large API call,
+        instead of several small ones which might jam the server.
+    """
+
     graphql_endpoint: str
     seed: int = 0
     _run_id: Optional[int] = None
@@ -126,7 +152,7 @@ class HasuraLogger(Logger):
     )
 
     def __post_init__(self):
-        self.random = np.random.RandomState(seed=0)
+        self.random = np.random.default_rng(seed=self.seed)
         assert self.graphql_endpoint is not None
         self.client = Client(graphql_endpoint=self.graphql_endpoint)
         self._log_buffer = []
@@ -150,6 +176,21 @@ class HasuraLogger(Logger):
         charts: List[dict] = None,
         sweep_id: int = None,
     ) -> Optional[dict]:
+        """
+        This is the main function for creating a new run in the
+        Hasura database.
+
+        :param metadata: Any useful data about the run being created, e.g. git commit,
+        parameters used, etc. `run-logger` makes no assumptions about the content of `metadata`,
+        except that it is JSON-compatible (or convertible to JSON-compatible by `jsonify`).
+        :param charts: A list of [Vega](https://vega.github.io/) or [Vega-Lite](https://vega.github.io/vega-lite/)
+        graphical specifications, to be displayed by [run-visualizer](https://github.com/run-tracker/run-visualizer).
+
+        :param sweep_id: The ID of the sweep that this run is associated with, if any.
+        See [https://github.com/run-tracker/sweep-logger] for details about creating sweeps.
+        :return: A dictionary of new parameter values assigned by sweep, if run is associated with one
+        (otherwise `None`).
+        """
         variable_values = dict(metadata=metadata)
         if charts is not None:
             variable_values.update(
@@ -176,7 +217,7 @@ class HasuraLogger(Logger):
                 assert v, f"{k} is empty"
             if grid_index is None:
                 # random search
-                choice = param_sampler(param_choices)
+                choice = param_sampler(param_choices, self.random)
             else:
                 # grid search
                 iterator = cycle(param_generator(param_choices))
@@ -185,6 +226,12 @@ class HasuraLogger(Logger):
             return choice
 
     def update_metadata(self, metadata: dict):
+        """
+        This will combine given metadata with existing run metadata
+        using the Hasura [`_append`](TODO) operator.
+
+        You must call `create_run` before calling this method.
+        """
         assert self.run_id is not None, "add_metadata called before create_run"
         self.execute(
             self.update_metadata_mutation,
@@ -195,6 +242,14 @@ class HasuraLogger(Logger):
         )
 
     def log(self, log: dict):
+        """
+        Create a new log object to be added to the `logs` database table.
+        This populates the data that [run-visualizer](https://github.com/run-tracker/run-visualizer)
+        will pass to Vega charts specs.
+        Specifically, run-visualizer will insert the array of logs into `data: values: [...]`.
+
+        You must call `create_run` before calling this method.
+        """
         assert self.run_id is not None, "log called before create_run"
 
         self._log_buffer.append(dict(log=log, run_id=self.run_id))
@@ -210,6 +265,17 @@ class HasuraLogger(Logger):
             self._log_buffer = []
 
     def blob(self, blob: str, metadata: dict):
+        """
+        Store a blob object in database. "Blobs" typically store large objects
+        such as images. [Run-visualizer](https://github.com/run-tracker/run-visualizer) does
+        not pull blobs from the Hasura database and they will not congest the visualizer
+        web interface.
+
+        You must call `create_run` before calling this method.
+
+        :param blob:
+        :param metadata:
+        """
         assert self.run_id is not None, "blob called before create_run"
 
         self._blob_buffer.append(dict(blob=blob, metadata=metadata, run_id=self.run_id))
