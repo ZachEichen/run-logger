@@ -5,7 +5,7 @@ description = "A utility for logging runs."
 readme = "README.md"
 authors = ["Ethan Brooks <ethanabrooks@gmail.com>"]
 maintainers = ["Ethan Brooks <ethanabrooks@gmail.com>"]
-include = ["dollar_lambda/py.typed"]
+include = ["run_logger/py.typed"]
 repository = "https://github.com/run-tracker/run-logger"
 classifiers = [
     "Development Status :: 3 - Alpha",
