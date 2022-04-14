@@ -17,11 +17,11 @@ def jsonify(value):
     Convert a value to a JSON-compatible type.
     In addition to standard JSON types, handles
 
-    - ``pathlib.Path``
-    - ``np.nan``
-    - ``np.ndarray`` (converts to list)
+    - ``pathlib.Path`` (converts to ``str``)
+    - ``np.nan`` (converts to ``null``)
+    - ``np.ndarray`` (converts to ``list``)
 
-    :param value:
+    :param value: a ``str``, ``Path``, ``np.ndarray``, ``dict``, or ``Iterable``.
     :return: value converted to JSON-serializable object
     """
     if isinstance(value, str):
@@ -269,8 +269,8 @@ class HasuraLogger(Logger):
 
         You must call :py:func:`create_run <run_logger.hasura_logger.create_run>` before calling this method.
 
-        :param blob:
-        :param metadata:
+        :param blob: This is expected to be a `bytea <https://www.postgresql.org/docs/current/datatype-binary.html#:~:text=The%20bytea%20type%20supports%20two,bytea_output%3B%20the%20default%20is%20hex.>`_ datatype.
+        :param metadata: any JSON-compatible metadata to be stored with blob.
         """
         assert self.run_id is not None, "blob called before create_run"
 

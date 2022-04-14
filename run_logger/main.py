@@ -107,7 +107,7 @@ def update_params(
     This is a convenience wrapper :py:meth:`HasuraLogger.update_metadata <run_logger.hasura_logger.HasuraLogger.update_metadata>`
     Updates the existing parameters of a run (``params``) with new parameters using the Hasura
     `_append <https://hasura.io/blog/postgres-json-and-jsonb-type-support-on-graphql-41f586e47536/#mutations-append>`_
-     operator.
+    operator.
 
     Parameters are updated with the following precedence:
     1. Load parameters (parameters corresponding to an existing run, specified by ``load_id``) if any.
@@ -118,12 +118,11 @@ def update_params(
 
     Note that this function does mutate the metadata stored in the database.
 
-    :param logger: A HasuraLogger object associated with the database containing the run whose parameters need to be
-    updated.
+    :param logger: A HasuraLogger object associated with the database containing the run whose parameters need to be updated.
     :param new_params: The new parameters.
     :param name: A name to be given to the run.
-    :param params:
-    :return: updated parameters.
+    :param params: Existing parameters (e.g. command line defaults).
+    :return: Updated parameters.
     """
 
     for p in astuple(new_params):
