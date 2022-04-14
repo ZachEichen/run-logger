@@ -7,6 +7,13 @@ ParamChoice = Tuple[str, Iterable]
 
 
 class SweepMethod(Enum):
+    """
+    The two methods for generating sweeps:
+
+    - ``random``: Samples parameters uniformly at random from the list of choices.
+    - ``grid``: Iterates sequentially over the list of choices.
+
+    """
     grid = auto()
     random = auto()
 

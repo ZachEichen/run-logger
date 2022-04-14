@@ -19,6 +19,8 @@ ipython = "^7.25.0"
 Sphinx = "^4.5.0"
 myst-parser = "^0.17.0"
 sphinx-book-theme = "^0.3.2"
+sphinx-copybutton = "^0.5.0"
+sphinx-autobuild = "^2021.3.14"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

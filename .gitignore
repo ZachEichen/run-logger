@@ -1,1 +1,4 @@
 .idea
+docs/build
+ignore.py
+**/__pycache__
