@@ -3,3 +3,4 @@ docs/build
 ignore.py
 **/__pycache__
 dist/
+.env
