@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "run-logger"
-version = "0.1.0"
+version = "0.0.1"
 description = ""
 authors = ["Ethan Brooks <ethanabrooks@gmail.com>"]
 
