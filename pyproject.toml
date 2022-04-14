@@ -1,12 +1,13 @@
 [tool.poetry]
 name = "run-logger"
-version = "0.0.2"
+version = "0.0.3"
 description = "A utility for logging runs."
 readme = "README.md"
 authors = ["Ethan Brooks <ethanabrooks@gmail.com>"]
 maintainers = ["Ethan Brooks <ethanabrooks@gmail.com>"]
 include = ["run_logger/py.typed"]
 repository = "https://github.com/run-tracker/run-logger"
+homepage = "https://run-logger.readthedocs.io/en/latest/index.html"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",

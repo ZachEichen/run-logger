@@ -12,3 +12,5 @@ This library has three primary functions:
 ```bash
 pip install run-logger
 ``` 
+
+# [Documentation](https://run-logger.readthedocs.io/en/latest/index.html)
