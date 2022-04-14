@@ -27,7 +27,7 @@ author = "Ethan Brooks"
 
 import importlib.metadata
 
-release = importlib.metadata.version("run-logger")
+release = importlib.metadata.version("run_logger")
 
 
 # -- General configuration ---------------------------------------------------
