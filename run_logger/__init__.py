@@ -7,7 +7,6 @@ from run_logger.main import (
     initialize,
     update_params,
 )
-from run_logger.params import ParamChoice, SweepMethod
 
 __all__ = [
     "Logger",
