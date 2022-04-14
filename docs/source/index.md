@@ -18,7 +18,7 @@ This library has three primary functions:
 pip install run-logger
 ```
 
-# Getting started
+# Usage
 
 ## Setting up the database
 
