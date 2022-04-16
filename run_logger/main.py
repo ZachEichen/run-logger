@@ -139,6 +139,7 @@ def initialize(
     config: Optional[Union[Path, str]] = None,
     charts: Optional[List[dict]] = None,
     metadata: Optional[Dict] = None,
+    name: Optional[str] = None,
     sweep_id: Optional[int] = None,
     load_id: Optional[int] = None,
     **params,
@@ -148,12 +149,13 @@ def initialize(
     It creates a new run and returns the parameters and a HasuraLogger object, which
     is a handle for accessing the database.
 
-    :param graphql_endpoint: The endpoint of the Hasura GraphQL API, e.g. ``https://server.university.edu:1200/v1/graphql``.
+    :param graphql_endpoint: The endpoint of the Hasura GraphQL API, e.g. ``https://server.university.edu:1200/v1/graphql``. If this value is ``None``, the run will not be logged in the database.
     :param config: An optional path to a ``yaml`` config file file containing parameters. See the section on :ref:`Config files` for more details.
     :param charts: A list of `Vega <https://vega.github.io/>`_ or `Vega-Lite <https://vega.github.io/vega-lite/>`_ graphical specifications, to be displayed by `run-visualizer <https://github.com/run-tracker/run-visualizer>`_.
+    :param metadata: Any JSON-serializable object to be stored in the database.
+    :param name: An optional name to be given to the run.
     :param sweep_id: An optional sweep ID, to enroll this run in a sweep.
     :param load_id: An optional run ID, to load parameters from an existing run.
-    :param use_logger: Whether to log this run in the database.
     :param params: Existing (usually default) parameters provided for the run (and updated by :py:func:`update_params <run_logger.main.update_params>`).
     :return: A tuple of parameters and a HasuraLogger object.
     """
@@ -169,6 +171,7 @@ def initialize(
     params = update_params(
         logger=logger,
         new_params=new_params,
+        name=name,
         **params,
     )
     return params, logger
