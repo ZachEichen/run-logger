@@ -270,14 +270,6 @@ MarkupSafe = ">=2.0"
 i18n = ["Babel (>=2.7)"]
 
 [[package]]
-name = "jsonlines"
-version = "2.0.0"
-description = "Library with helpers for the jsonlines file format"
-category = "main"
-optional = false
-python-versions = ">=3.6"
-
-[[package]]
 name = "livereload"
 version = "2.6.3"
 description = "Python LiveReload is an awesome tool for web developers"
@@ -834,7 +826,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "02691e70c9291e198d1b930e78ea84084df3c5a04f24a4ecace550bf114ab2cd"
+content-hash = "9cb79bf93e205a6d0e8f60178cfdf669b49f828c802849d0ed2abb1932eb23f6"
 
 [metadata.files]
 alabaster = [
@@ -919,10 +911,6 @@ jedi = [
 jinja2 = [
     {file = "Jinja2-3.1.2-py3-none-any.whl", hash = "sha256:6088930bfe239f0e6710546ab9c19c9ef35e29792895fed6e6e31a023a182a61"},
     {file = "Jinja2-3.1.2.tar.gz", hash = "sha256:31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852"},
-]
-jsonlines = [
-    {file = "jsonlines-2.0.0-py3-none-any.whl", hash = "sha256:bfb043d4e25fd894dca67b1f2adf014e493cb65d0f18b3a74a98bfcd97c3d983"},
-    {file = "jsonlines-2.0.0.tar.gz", hash = "sha256:6fdd03104c9a421a1ba587a121aaac743bf02d8f87fa9cdaa3b852249a241fe8"},
 ]
 livereload = [
     {file = "livereload-2.6.3.tar.gz", hash = "sha256:776f2f865e59fde56490a56bcc6773b6917366bce0c267c60ee8aaf1a0959869"},
