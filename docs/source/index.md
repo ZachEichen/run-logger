@@ -44,7 +44,7 @@ _, logger = initialize(
 
 This will create a new run in the database, and return a
 {class}`run_logger.main.RunLogger` object that can be used to store logs in
-the database using the {meth}`run_logger.main.RunLogger.log` method. 
+the database using the {meth}`run_logger.main.RunLogger.log` method.
 
 It will also store ``params`` in the ``parameters`` key of the run's metadata.
 
@@ -76,7 +76,7 @@ chart = {
 }
 ```
 
-Unlike the example, this chart does not use a URL to specify the data 
+Unlike the example, this chart does not use a URL to specify the data
 source. Now suppose the user has logged a few data points:
 
 ```python
@@ -85,8 +85,8 @@ logger.log(symbol="GOOG", date="2020-04-02", price=110)
 logger.log(symbol="GOOG", date="2020-04-03", price=120)
 ```
 
-[run-visualizer](https://github.com/run-tracker/run-visualizer) will insert 
-these data points into the ``data`` field of the chart so that 
+[run-visualizer](https://github.com/run-tracker/run-visualizer) will insert
+these data points into the ``data`` field of the chart so that
 it looks like this:
 
 ```python
@@ -99,8 +99,8 @@ chart = {
           {"symbol": "GOOG", "date": "2020-04-01", "price": 100},
           {"symbol": "GOOG", "date": "2020-04-02", "price": 110},
           {"symbol": "GOOG", "date": "2020-04-03", "price": 120}
-      ] 
-    }, 
+      ]
+    },
   "transform": [{"filter": "datum.symbol==='GOOG'"}],
   "mark": "line",
   "encoding": {
@@ -111,7 +111,7 @@ chart = {
 ```
 
 Use the [Vega editor](https://vega.github.io/editor/#/edited) to
-preview the chart. In general, this is the recommended tool for 
+preview the chart. In general, this is the recommended tool for
 developing new charts before inserting them in the database.
 
 ## Config files
@@ -119,7 +119,7 @@ In many cases, users will want to store parameters in a file instead of
 entering them by hand on the command line each time they launch a run.
 `run-logger` offers a utility for loading parameters from [Yaml files](https://yaml.org/).
 
-To load a config file, supply a value to the 
+To load a config file, supply a value to the
 `config` parameter of the {func}`run_logger.main.initialize` function:
 
 ```python
@@ -168,7 +168,7 @@ function.
 
 ## Loading parameters from existing runs
 
-Suppose you want to re-launch a run with the same parameters as a run that is already in 
+Suppose you want to re-launch a run with the same parameters as a run that is already in
 the database. To access these parameters, provide a `run_id` parameter to the {func}`run_logger.main.initialize` function:
 
 ```python

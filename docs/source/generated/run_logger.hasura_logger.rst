@@ -3,34 +3,25 @@
 
 .. automodule:: run_logger.hasura_logger
 
-   
-   
-   
 
-   
-   
+
+
+
+
+
    .. rubric:: Functions
 
    .. autosummary::
-   
-      jsonify
-   
-   
 
-   
-   
+      jsonify
+
+
+
+
+
    .. rubric:: Classes
 
    .. autosummary::
-   
+
       Client
       HasuraLogger
-   
-   
-
-   
-   
-   
-
-
-

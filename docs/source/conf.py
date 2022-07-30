@@ -25,7 +25,7 @@ author = "Ethan Brooks"
 
 # The full version, including alpha/beta/rc tags
 
-import importlib.metadata
+import importlib.metadata  # noqa: E402
 
 release = importlib.metadata.version("run_logger")
 

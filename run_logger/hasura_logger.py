@@ -5,7 +5,8 @@ from pathlib import Path
 from typing import List, Optional
 
 import numpy as np
-from gql import Client as GQLClient, gql
+from gql import Client as GQLClient
+from gql import gql
 from gql.transport.requests import RequestsHTTPTransport
 
 from run_logger.logger import Logger
