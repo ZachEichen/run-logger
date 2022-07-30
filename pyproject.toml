@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "run-logger"
-version = "0.1.0"
+version = "0.1.1"
 description = "A utility for logging runs."
 readme = "README.md"
 authors = ["Ethan Brooks <ethanabrooks@gmail.com>"]
