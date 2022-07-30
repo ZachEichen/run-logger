@@ -159,7 +159,7 @@ def initialize(
     :param params: Existing (usually default) parameters provided for the run (and updated by :py:func:`update_params <run_logger.main.update_params>`).
     :return: A tuple of parameters and a HasuraLogger object.
     """
-    logger = HasuraLogger(graphql_endpoint) if graphql_endpoint else None
+    logger = HasuraLogger(graphql_endpoint)
     new_params = create_run(
         logger=logger,
         config=config,
