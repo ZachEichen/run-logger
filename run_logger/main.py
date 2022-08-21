@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, Tuple, Union
 import yaml
 from gql import gql
 
-from run_logger import HasuraLogger
+from run_logger.run import RunLogger
 
 
 @dataclass
@@ -26,7 +26,7 @@ def get_config_params(config: Union[str, Path]) -> dict:
     return config
 
 
-def get_load_params(load_id: int, logger: HasuraLogger) -> dict:
+def get_load_params(load_id: int, logger: RunLogger) -> dict:
     """
     Returns the parameters of an existing run.
 
@@ -47,7 +47,7 @@ metadata(path: "parameters")
 
 
 def create_run(
-    logger: Optional[HasuraLogger] = None,
+    logger: Optional[RunLogger] = None,
     config: Optional[Union[Path, str]] = None,
     charts: Optional[List[dict]] = None,
     metadata: Optional[Dict] = None,
@@ -98,7 +98,7 @@ def create_run(
 
 
 def update_params(
-    logger: Optional[HasuraLogger],
+    logger: Optional[RunLogger],
     new_params: NewParams,
     name: str,
     **params,
@@ -143,7 +143,7 @@ def initialize(
     sweep_id: Optional[int] = None,
     load_id: Optional[int] = None,
     **params,
-) -> Tuple[dict, Optional[HasuraLogger]]:
+) -> Tuple[dict, Optional[RunLogger]]:
     """
     The main function to initialize a run.
     It creates a new run and returns the parameters and a HasuraLogger object, which
@@ -159,7 +159,7 @@ def initialize(
     :param params: Existing (usually default) parameters provided for the run (and updated by :py:func:`update_params <run_logger.main.update_params>`).
     :return: A tuple of parameters and a HasuraLogger object.
     """
-    logger = HasuraLogger(graphql_endpoint)
+    logger = RunLogger(graphql_endpoint)
     new_params = create_run(
         logger=logger,
         config=config,

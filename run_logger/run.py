@@ -1,6 +1,5 @@
 import time
 from dataclasses import dataclass
-from itertools import cycle, islice
 from pathlib import Path
 from typing import List, Optional
 
@@ -8,9 +7,6 @@ import numpy as np
 from gql import Client as GQLClient
 from gql import gql
 from gql.transport.requests import RequestsHTTPTransport
-
-from run_logger.logger import Logger
-from run_logger.params import param_generator, param_sampler
 
 
 def jsonify(value):
@@ -59,9 +55,9 @@ class Client:
         sleep_time = 1
         while True:
             try:
+                # noinspection PyTypeChecker
                 return self.client.execute(
-                    query,
-                    variable_values=jsonify(variable_values),
+                    query, variable_values=jsonify(variable_values)
                 )
             except Exception as e:
                 print(e)
@@ -71,7 +67,7 @@ class Client:
 
 
 @dataclass
-class HasuraLogger(Logger):
+class RunLogger:
     """
     HasuraLogger is the main logger class for this library.
 
@@ -176,7 +172,7 @@ class HasuraLogger(Logger):
         metadata: Optional[dict],
         charts: Optional[List[dict]] = None,
         sweep_id: Optional[int] = None,
-    ) -> Optional[dict]:
+    ) -> None:
         """
         Creates a new run in the Hasura database.
 
@@ -201,24 +197,6 @@ class HasuraLogger(Logger):
         data = self.execute(mutation, variable_values=variable_values)
         insert_run_response = data["insert_run_one"]
         self._run_id = insert_run_response["id"]
-        if sweep_id is not None:
-            param_choices = {
-                d["Key"]: d["choice"]
-                for d in insert_run_response["sweep"]["parameter_choices"]
-            }
-            grid_index = data["update_sweep"]["returning"][0]["grid_index"]
-            assert param_choices, "No parameter choices found in database"
-            for k, v in param_choices.items():
-                assert v, f"{k} is empty"
-            if grid_index is None:
-                # random search
-                choice = param_sampler(param_choices, self.random)
-            else:
-                # grid search
-                iterator = cycle(param_generator(param_choices))
-                choice = next(islice(iterator, grid_index, None))
-
-            return choice
 
     def update_metadata(self, metadata: dict):
         """

@@ -1,5 +1,3 @@
-from run_logger.hasura_logger import Client, HasuraLogger
-from run_logger.logger import Logger
 from run_logger.main import (
     NewParams,
     create_run,
@@ -7,15 +5,18 @@ from run_logger.main import (
     initialize,
     update_params,
 )
+from run_logger.run import Client, RunLogger
+from run_logger.sweep import SweepLogger, create_sweep
 
 __all__ = [
-    "Logger",
-    "HasuraLogger",
     "Client",
+    "create_run",
+    "create_sweep",
+    "get_load_params",
+    "initialize",
     "main",
     "NewParams",
-    "create_run",
-    "get_load_params",
+    "RunLogger",
+    "SweepLogger",
     "update_params",
-    "initialize",
 ]
