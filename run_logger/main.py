@@ -2,7 +2,6 @@ from dataclasses import astuple, dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
 
-import yaml
 from gql import gql
 
 from run_logger.run import RunLogger
@@ -13,17 +12,6 @@ class NewParams:
     config_params: Optional[dict]
     sweep_params: Optional[dict]
     load_params: Optional[dict]
-
-
-def get_config_params(config: Union[str, Path]) -> dict:
-    """
-    Reads a ``yaml`` config file and returns a dictionary of parameters.
-    """
-    if isinstance(config, str):
-        config = Path(config)
-    with Path(config).open() as f:
-        config = yaml.load(f, yaml.FullLoader)
-    return config
 
 
 def get_load_params(load_id: int, logger: RunLogger) -> dict:
@@ -48,7 +36,7 @@ metadata(path: "parameters")
 
 def create_run(
     logger: Optional[RunLogger] = None,
-    config: Optional[Union[Path, str]] = None,
+    config: Optional[dict] = None,
     charts: Optional[List[dict]] = None,
     metadata: Optional[Dict] = None,
     sweep_id: Optional[int] = None,
@@ -71,27 +59,22 @@ def create_run(
     :param load_id: The ID of an existing run whose parameters you want to access.
     """
 
-    config_params = None
     sweep_params = None
     load_params = None
 
-    if config is not None:
-        config_params = get_config_params(config)
+    if config is None:
+        config = {}
 
     if logger is not None:
         if charts is None:
             charts = []
-        sweep_params = logger.create_run(
-            metadata=metadata,
-            sweep_id=sweep_id,
-            charts=charts,
-        )
+        logger.create_run(metadata=metadata, sweep_id=sweep_id, charts=charts)
 
     if load_id is not None:
         load_params = get_load_params(load_id=load_id, logger=logger)
 
     return NewParams(
-        config_params=config_params,
+        config_params=config,
         sweep_params=sweep_params,
         load_params=load_params,
     )

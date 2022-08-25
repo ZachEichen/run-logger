@@ -8,7 +8,6 @@ from pathlib import Path
 from pprint import pformat
 from typing import Optional
 
-import yaml
 from gql import gql
 
 from run_logger.run import RunLogger
@@ -68,15 +67,12 @@ def compute_remaining_runs(params):
 
 
 def create_sweep(
-    config: Path,
+    config: dict,
     graphql_endpoint: str,
     log_level: str,
     name: Optional[str],
     project: Optional[str] = None,
 ) -> int:
-    with config.open() as f:
-        config = yaml.load(f, yaml.FullLoader)
-
     assert isinstance(config, (dict, list)), pformat(config)
     logging.getLogger().setLevel(log_level)
     metadata = dict(config=config)
